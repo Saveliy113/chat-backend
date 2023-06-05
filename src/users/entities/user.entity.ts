@@ -1,10 +1,14 @@
-import { timeStamp } from 'console';
+import { RoomEntity } from 'src/rooms/entities/room.entity';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToMany,
+  JoinTable,
+  ManyToOne,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('users')
@@ -24,6 +28,12 @@ export class UserEntity {
     nullable: true,
   })
   password: string;
+
+  @OneToMany(() => RoomEntity, (room) => room.createdBy)
+  createdRooms: RoomEntity[];
+
+  @ManyToMany(() => RoomEntity, (room) => room.users)
+  rooms: RoomEntity[];
 
   @CreateDateColumn({
     type: 'timestamp',
