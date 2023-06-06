@@ -1,7 +1,7 @@
-import { Length } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 
 export class CreateRoomDto {
-  @Length(1)
+  @IsNotEmpty()
   title: string;
 
   description?: string;

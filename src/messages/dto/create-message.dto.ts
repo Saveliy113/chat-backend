@@ -1,6 +1,6 @@
-import { Length } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 
 export class CreateMessageDto {
-  @Length(1)
+  @IsNotEmpty()
   text: string;
 }

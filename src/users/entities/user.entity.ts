@@ -7,8 +7,6 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToMany,
-  JoinTable,
-  ManyToOne,
   OneToMany,
 } from 'typeorm';
 
@@ -28,13 +26,11 @@ export class UserEntity {
   @Column()
   password: string;
 
+  @OneToMany(() => RoomEntity, (room) => room.createdBy)
+  createdRooms: RoomEntity[];
+
   @OneToMany(() => MessageEntity, (message) => message.author)
   messages: MessageEntity[];
-
-  @OneToMany(() => RoomEntity, (room) => room.createdBy, {
-    eager: true,
-  })
-  createdRooms: RoomEntity[];
 
   @ManyToMany(() => RoomEntity, (room) => room.participants)
   rooms: RoomEntity[];
