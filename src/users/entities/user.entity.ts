@@ -1,3 +1,4 @@
+import { MessageEntity } from 'src/messages/entities/message.entity';
 import { RoomEntity } from 'src/rooms/entities/room.entity';
 import {
   Entity,
@@ -24,15 +25,18 @@ export class UserEntity {
   })
   email: string;
 
-  @Column({
-    nullable: true,
-  })
+  @Column()
   password: string;
 
-  @OneToMany(() => RoomEntity, (room) => room.createdBy)
+  @OneToMany(() => MessageEntity, (message) => message.author)
+  messages: MessageEntity[];
+
+  @OneToMany(() => RoomEntity, (room) => room.createdBy, {
+    eager: true,
+  })
   createdRooms: RoomEntity[];
 
-  @ManyToMany(() => RoomEntity, (room) => room.users)
+  @ManyToMany(() => RoomEntity, (room) => room.participants)
   rooms: RoomEntity[];
 
   @CreateDateColumn({

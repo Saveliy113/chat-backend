@@ -1,3 +1,4 @@
+import { MessageEntity } from 'src/messages/entities/message.entity';
 import { UserEntity } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -22,7 +23,10 @@ export class RoomEntity {
 
   @ManyToMany(() => UserEntity, (user) => user.rooms)
   @JoinTable()
-  users: UserEntity[];
+  participants: UserEntity[];
+
+  @ManyToOne(() => MessageEntity, (message) => message.room)
+  messages: MessageEntity[];
 
   @ManyToOne(() => UserEntity, (user) => user.createdRooms)
   createdBy: UserEntity;
