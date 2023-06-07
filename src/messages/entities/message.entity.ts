@@ -17,7 +17,7 @@ export class MessageEntity {
   @ManyToOne(() => UserEntity, (user) => user.messages)
   author: UserEntity;
 
-  @OneToMany(() => RoomEntity, (room) => room.messages)
+  @ManyToOne(() => RoomEntity, (room) => room.messages)
   room: RoomEntity;
 
   @Column()
