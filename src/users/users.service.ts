@@ -3,6 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -12,7 +13,11 @@ export class UsersService {
   ) {}
 
   create(dto: CreateUserDto) {
-    return this.usersRepository.save(dto);
+    return this.usersRepository.save({
+      fullName: dto.fullName,
+      email: dto.email,
+      password: dto.password,
+    });
   }
 
   findAll() {
@@ -23,6 +28,15 @@ export class UsersService {
     return this.usersRepository.findOne({
       where: {
         id,
+      },
+    });
+  }
+
+  findByCond(dto: LoginUserDto) {
+    return this.usersRepository.findOne({
+      where: {
+        email: dto.email,
+        password: dto.password,
       },
     });
   }

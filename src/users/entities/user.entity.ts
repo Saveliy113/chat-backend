@@ -26,13 +26,19 @@ export class UserEntity {
   @Column()
   password: string;
 
-  @OneToMany(() => RoomEntity, (room) => room.createdBy)
+  @OneToMany(() => RoomEntity, (room) => room.createdBy, {
+    nullable: true,
+  })
   createdRooms: RoomEntity[];
 
-  @OneToMany(() => MessageEntity, (message) => message.author)
+  @OneToMany(() => MessageEntity, (message) => message.author, {
+    nullable: true,
+  })
   messages: MessageEntity[];
 
-  @ManyToMany(() => RoomEntity, (room) => room.participants)
+  @ManyToMany(() => RoomEntity, (room) => room.participants, {
+    nullable: true,
+  })
   rooms: RoomEntity[];
 
   @CreateDateColumn({

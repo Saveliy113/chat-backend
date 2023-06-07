@@ -11,6 +11,7 @@ export class RoomsService {
     private roomsRepository: Repository<RoomEntity>,
   ) {}
 
+  //User ID должен быть динамическим
   async create(dto: CreateRoomDto) {
     const room = await this.roomsRepository.save({
       title: dto.title,

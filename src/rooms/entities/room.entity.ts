@@ -25,11 +25,15 @@ export class RoomEntity {
   })
   description: string;
 
-  @ManyToMany(() => UserEntity, (user) => user.rooms)
+  @ManyToMany(() => UserEntity, (user) => user.rooms, {
+    nullable: true,
+  })
   @JoinTable()
   participants: UserEntity[];
 
-  @OneToMany(() => MessageEntity, (message) => message.room)
+  @OneToMany(() => MessageEntity, (message) => message.room, {
+    nullable: true,
+  })
   messages: MessageEntity[];
 
   @ManyToOne(() => UserEntity)
