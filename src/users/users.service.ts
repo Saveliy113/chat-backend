@@ -28,7 +28,7 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
-  findOne(id: number) {
+  findById(id: number) {
     return this.usersRepository.findOne({
       where: {
         id,
@@ -40,7 +40,6 @@ export class UsersService {
     return this.usersRepository.findOne({
       where: {
         email: dto.email,
-        password: dto.password,
       },
     });
   }

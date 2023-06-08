@@ -12,18 +12,18 @@ export class RoomsService {
   ) {}
 
   //User ID должен быть динамическим
-  async create(dto: CreateRoomDto) {
+  async create(dto: CreateRoomDto, userId: number) {
     const room = await this.roomsRepository.save({
       title: dto.title,
       description: dto.description,
-      createdBy: { id: 1 },
+      createdBy: { id: userId },
     });
 
     return this.roomsRepository.findOne({
       where: {
         id: room.id,
       },
-      relations: ['createdBy'],
+      relations: ['createdBy', 'messages', 'participants'],
     });
   }
 
