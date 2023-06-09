@@ -11,7 +11,6 @@ export class RoomsService {
     private roomsRepository: Repository<RoomEntity>,
   ) {}
 
-  //User ID должен быть динамическим
   async create(dto: CreateRoomDto, userId: number) {
     const room = await this.roomsRepository.save({
       title: dto.title,
@@ -27,11 +26,23 @@ export class RoomsService {
     });
   }
 
-  findAll() {
-    return this.roomsRepository
+  async findAll() {
+    const rooms = await this.roomsRepository
       .createQueryBuilder('room')
       .leftJoinAndSelect('room.createdBy', 'users')
+      .leftJoinAndSelect('room.messages', 'messages')
       .getMany();
+
+    return rooms.map((room) => {
+      return {
+        ...room,
+        createdBy: {
+          id: room.createdBy.id,
+          fullName: room.createdBy.fullName,
+          email: room.createdBy.email,
+        },
+      };
+    });
   }
 
   findOne(id: number) {

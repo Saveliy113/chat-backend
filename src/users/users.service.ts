@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
 import { LoginUserDto } from './dto/login-user.dto';
+import { ForbiddenException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -13,15 +14,19 @@ export class UsersService {
     private usersRepository: Repository<UserEntity>,
   ) {}
 
-  async create(dto: CreateUserDto) {
-    const saltOrRounds = 10;
-    const hash = await bcrypt.hash(dto.password, saltOrRounds);
+  async register(dto: CreateUserDto) {
+    try {
+      const saltOrRounds = 10;
+      const hash = await bcrypt.hash(dto.password, saltOrRounds);
 
-    return this.usersRepository.save({
-      fullName: dto.fullName,
-      email: dto.email,
-      password: hash,
-    });
+      return this.usersRepository.save({
+        fullName: dto.fullName,
+        email: dto.email,
+        password: hash,
+      });
+    } catch (error) {
+      throw new ForbiddenException('Ошибка при регистрации');
+    }
   }
 
   findAll() {

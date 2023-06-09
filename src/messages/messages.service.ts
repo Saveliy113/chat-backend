@@ -11,11 +11,12 @@ export class MessagesService {
     private messagesRepository: Repository<MessageEntity>,
   ) {}
 
-  create(dto: CreateMessageDto) {
+  create(dto: CreateMessageDto, userId: number) {
+    console.log(dto, userId);
     return this.messagesRepository.save({
       text: dto.text,
-      author: { id: 1 },
-      room: { id: 1 },
+      author: { id: userId },
+      room: { id: dto.roomId },
     });
   }
 
