@@ -10,7 +10,7 @@ import {
 
 @Entity('messages', {
   orderBy: {
-    id: 'ASC',
+    id: 'DESC',
   },
 })
 export class MessageEntity {

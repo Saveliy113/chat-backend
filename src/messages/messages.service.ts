@@ -12,7 +12,6 @@ export class MessagesService {
   ) {}
 
   create(dto: CreateMessageDto, userId: number) {
-    console.log(dto, userId);
     return this.messagesRepository.save({
       text: dto.text,
       author: { id: userId },
@@ -20,19 +19,58 @@ export class MessagesService {
     });
   }
 
-  findAll() {
-    return this.messagesRepository.find();
+  async findAll() {
+    const messages = await this.messagesRepository.find({
+      relations: {
+        author: true,
+        room: true,
+      },
+    });
+
+    return messages.map((message) => {
+      return {
+        ...message,
+        author: {
+          id: message.author.id,
+          fullName: message.author.fullName,
+        },
+        room: {
+          id: message.room.id,
+          title: message.room.title,
+        },
+      };
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} message`;
+  async findOne(id: number) {
+    const message = await this.messagesRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        author: true,
+        room: true,
+      },
+    });
+
+    return {
+      ...message,
+      author: {
+        id: message.author.id,
+        fullName: message.author.fullName,
+      },
+      room: {
+        id: message.room.id,
+        title: message.room.title,
+      },
+    };
   }
 
-  update(id: number, updateMessageDto: UpdateMessageDto) {
-    return `This action updates a #${id} message`;
+  update(id: number, dto: UpdateMessageDto) {
+    return this.messagesRepository.update(id, dto);
   }
 
   remove(id: number) {
-    return `This action removes a #${id} message`;
+    return this.messagesRepository.delete(id);
   }
 }

@@ -28,19 +28,21 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.usersService.findOne(+id);
-  // }
-
   @UseGuards(JwtAuthGuard)
   @Get('me')
   findOne(@Request() req) {
     return this.usersService.findById(req.user.id);
   }
 
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.usersService.findOne(+id);
+  // }
+
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    console.log(`ID: ${id}`);
     return this.usersService.update(+id, updateUserDto);
   }
 
