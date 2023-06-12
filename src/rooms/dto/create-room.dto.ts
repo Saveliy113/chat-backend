@@ -8,5 +8,5 @@ export class CreateRoomDto {
   description?: string;
 
   @IsOptional()
-  participants: UserEntity[];
+  participant: UserEntity;
 }

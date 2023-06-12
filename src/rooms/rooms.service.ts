@@ -8,12 +8,16 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { Repository } from 'typeorm';
 import { RoomEntity } from './entities/room.entity';
+import { UserEntity } from 'src/users/entities/user.entity';
+import { AddMemberDto } from './dto/add-member.dto';
 
 @Injectable()
 export class RoomsService {
   constructor(
     @Inject('ROOMS_REPOSITORY')
     private roomsRepository: Repository<RoomEntity>,
+    @Inject('USERS_REPOSITORY')
+    private usersRepository: Repository<UserEntity>,
   ) {}
 
   async create(dto: CreateRoomDto, userId: number) {
@@ -59,7 +63,13 @@ export class RoomsService {
       where: {
         id,
       },
-      relations: ['createdBy', 'messages', 'participants'],
+      relations: {
+        createdBy: true,
+        messages: true,
+        participants: {
+          fullName: true,
+        },
+      },
     });
 
     return {
@@ -79,11 +89,39 @@ export class RoomsService {
       },
       relations: ['participants'],
     });
-    console.log(room);
+
     return this.roomsRepository.update(id, {
       title: dto.title,
       description: dto.description,
     });
+  }
+
+  async addMember(dto: AddMemberDto) {
+    const member = await this.usersRepository.findOne({
+      where: {
+        id: dto.memberId,
+      },
+    });
+
+    const room = await this.roomsRepository.findOne({
+      where: {
+        id: dto.roomId,
+      },
+      relations: ['participants'],
+    });
+
+    return this.roomsRepository.save({
+      ...room,
+      participants: [
+        ...room.participants,
+        {
+          id: member.id,
+          fullName: member.fullName,
+        },
+      ],
+    });
+    console.log(member);
+    console.log(room);
   }
 
   async remove(id: number, userId: number) {
