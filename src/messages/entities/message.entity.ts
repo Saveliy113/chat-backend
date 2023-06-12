@@ -8,7 +8,11 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity('messages')
+@Entity('messages', {
+  orderBy: {
+    id: 'ASC',
+  },
+})
 export class MessageEntity {
   @PrimaryGeneratedColumn()
   id: number;

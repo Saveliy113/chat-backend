@@ -37,11 +37,13 @@ export class RoomsController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateRoomDto: UpdateRoomDto) {
+    console.log('Room ID:', id);
     return this.roomsService.update(+id, updateRoomDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.roomsService.remove(+id);
+  remove(@Param('id') id: string, @Request() req: any) {
+    return this.roomsService.remove(+id, req.user.id);
   }
 }

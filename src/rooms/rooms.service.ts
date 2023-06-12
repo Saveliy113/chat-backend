@@ -1,4 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { Repository } from 'typeorm';
@@ -41,19 +46,62 @@ export class RoomsService {
           fullName: room.createdBy.fullName,
           email: room.createdBy.email,
         },
+        messages: room.messages.slice(
+          room.messages.length - 1,
+          room.messages.length,
+        ),
       };
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} room`;
+  async findOne(id: number) {
+    const room = await this.roomsRepository.findOne({
+      where: {
+        id,
+      },
+      relations: ['createdBy', 'messages', 'participants'],
+    });
+
+    return {
+      ...room,
+      createdBy: {
+        id: room.createdBy.id,
+        fullName: room.createdBy.fullName,
+        email: room.createdBy.email,
+      },
+    };
   }
 
-  update(id: number, updateRoomDto: UpdateRoomDto) {
-    return `This action updates a #${id} room`;
+  async update(id: number, dto: UpdateRoomDto) {
+    const room = await this.roomsRepository.findOne({
+      where: {
+        id,
+      },
+      relations: ['participants'],
+    });
+    console.log(room);
+    return this.roomsRepository.update(id, {
+      title: dto.title,
+      description: dto.description,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} room`;
+  async remove(id: number, userId: number) {
+    const room = await this.roomsRepository.findOne({
+      where: {
+        id,
+      },
+      relations: ['createdBy'],
+    });
+
+    if (!room) {
+      throw new NotFoundException('Комната не найдена');
+    }
+
+    if (room.createdBy.id !== userId) {
+      throw new ForbiddenException('У вас нет доступа к удалению комнаты');
+    }
+
+    return this.roomsRepository.delete(id);
   }
 }
