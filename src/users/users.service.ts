@@ -4,7 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
 import { LoginUserDto } from './dto/login-user.dto';
-import { ForbiddenException } from '@nestjs/common';
+import { ForbiddenException, ConflictException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -14,7 +14,18 @@ export class UsersService {
     private usersRepository: Repository<UserEntity>,
   ) {}
 
+  //Creating new user. First of all we check whether user with such email exists in database. If exists, it will throw exception. If not, registration attempt will be done.
   async register(dto: CreateUserDto) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        email: dto.email,
+      },
+    });
+
+    if (user) {
+      throw new ConflictException('Пользователь с таким email уже существует');
+    }
+
     try {
       const saltOrRounds = 10;
       const hash = await bcrypt.hash(dto.password, saltOrRounds);
@@ -54,6 +65,6 @@ export class UsersService {
   }
 
   remove(id: number) {
-    return `This action removes a #${id} user`;
+    return this.usersRepository.delete(id);
   }
 }

@@ -38,7 +38,6 @@ export class RoomsController {
 
   @Patch('add-member')
   addMember(@Body() dto: AddMemberDto) {
-    // console.log('Member ID: ', dto.memberId);
     return this.roomsService.addMember(dto);
   }
 

@@ -66,9 +66,7 @@ export class RoomsService {
       relations: {
         createdBy: true,
         messages: true,
-        participants: {
-          fullName: true,
-        },
+        participants: true,
       },
     });
 
@@ -79,6 +77,13 @@ export class RoomsService {
         fullName: room.createdBy.fullName,
         email: room.createdBy.email,
       },
+      participants: room.participants.map((user) => {
+        return {
+          id: user.id,
+          fullName: user.fullName,
+          email: user.email,
+        };
+      }),
     };
   }
 
@@ -120,8 +125,6 @@ export class RoomsService {
         },
       ],
     });
-    console.log(member);
-    console.log(room);
   }
 
   async remove(id: number, userId: number) {
