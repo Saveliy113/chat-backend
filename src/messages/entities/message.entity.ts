@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -18,6 +19,7 @@ export class MessageEntity {
   id: number;
 
   @ManyToOne(() => UserEntity, (user) => user.messages)
+  @JoinColumn()
   author: UserEntity;
 
   @ManyToOne(() => RoomEntity, (room) => room.messages)

@@ -26,12 +26,20 @@ export class RoomsService {
       description: dto.description,
       createdBy: { id: userId },
     });
-
     return this.roomsRepository.findOne({
       where: {
         id: room.id,
       },
-      relations: ['createdBy', 'messages', 'participants'],
+      relations: {
+        createdBy: true,
+      },
+      select: {
+        createdBy: {
+          id: true,
+          fullName: true,
+          email: true,
+        },
+      },
     });
   }
 
@@ -58,32 +66,68 @@ export class RoomsService {
     });
   }
 
+  // async findOne(id: number) {
+  //   const room = await this.roomsRepository.findOne({
+  //     where: {
+  //       id,
+  //     },
+  //     relations: ['createdBy', 'messages', 'messages.author', 'participants'],
+  //     select: {
+  //       createdBy: {
+  //         id: true,
+  //         fullName: true,
+  //         email: true,
+  //       },
+  //     },
+  //     order: {
+  //       messages: {
+  //         createdAt: 'DESC',
+  //       },
+  //     },
+  //   });
+
+  //   return {
+  //     ...room,
+  //     createdBy: {
+  //       id: room.createdBy.id,
+  //       fullName: room.createdBy.fullName,
+  //       email: room.createdBy.email,
+  //     },
+  //     participants: room.participants.map((user) => {
+  //       return {
+  //         id: user.id,
+  //         fullName: user.fullName,
+  //         email: user.email,
+  //       };
+  //     }),
+  //   };
+  // }
+
   async findOne(id: number) {
-    const room = await this.roomsRepository.findOne({
-      where: {
-        id,
-      },
-      relations: {
-        createdBy: true,
-        messages: true,
-        participants: true,
-      },
-    });
+    const qb = this.roomsRepository.createQueryBuilder('room');
+    const room = await qb
+      .where('room.id = :id', { id })
+      .leftJoinAndSelect('room.createdBy', 'createdBy')
+      .leftJoinAndSelect('room.messages', 'messages')
+      .leftJoinAndSelect('messages.author', 'author')
+      .select([
+        'room',
+        'messages',
+        'author',
+
+        'createdBy.id',
+        'createdBy.fullName',
+      ])
+      .addSelect(['author', 'author.id', 'author.fullName'])
+      .getOne();
+    console.log(room);
+
+    // qb.setParameters({
+    //   id: `%${id}%`,
+    // });
 
     return {
       ...room,
-      createdBy: {
-        id: room.createdBy.id,
-        fullName: room.createdBy.fullName,
-        email: room.createdBy.email,
-      },
-      participants: room.participants.map((user) => {
-        return {
-          id: user.id,
-          fullName: user.fullName,
-          email: user.email,
-        };
-      }),
     };
   }
 
