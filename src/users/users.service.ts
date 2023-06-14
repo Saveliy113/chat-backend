@@ -60,7 +60,24 @@ export class UsersService {
     });
   }
 
-  update(id: number, dto: UpdateUserDto) {
+  async update(id: number, dto: UpdateUserDto) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (dto.hasOwnProperty('password')) {
+      const saltOrRounds = 10;
+      const hash = await bcrypt.hash(dto.password, saltOrRounds);
+
+      return this.usersRepository.update(id, {
+        fullName: dto.fullName || user.fullName,
+        email: dto.email || user.email,
+        password: hash,
+      });
+    }
+
     return this.usersRepository.update(id, dto);
   }
 
