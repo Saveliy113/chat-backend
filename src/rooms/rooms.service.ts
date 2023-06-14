@@ -110,15 +110,18 @@ export class RoomsService {
       .leftJoinAndSelect('room.createdBy', 'createdBy')
       .leftJoinAndSelect('room.messages', 'messages')
       .leftJoinAndSelect('messages.author', 'author')
+      .leftJoinAndSelect('room.participants', 'participants')
       .select([
         'room',
         'messages',
-        'author',
-
+        'author.id',
+        'author.fullName',
+        'participants.id',
+        'participants.fullName',
+        'participants.email',
         'createdBy.id',
         'createdBy.fullName',
       ])
-      .addSelect(['author', 'author.id', 'author.fullName'])
       .getOne();
     console.log(room);
 
