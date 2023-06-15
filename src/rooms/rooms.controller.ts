@@ -36,20 +36,25 @@ export class RoomsController {
     return this.roomsService.findOne(+id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch('add-member')
-  addMember(@Body() dto: AddMemberDto) {
-    return this.roomsService.addMember(dto);
+  addMember(@Body() dto: AddMemberDto, @Request() req: any) {
+    return this.roomsService.addMember(dto, +req.user.id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRoomDto: UpdateRoomDto) {
-    console.log('Room ID:', id);
-    return this.roomsService.update(+id, updateRoomDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateRoomDto: UpdateRoomDto,
+    @Request() req: any,
+  ) {
+    return this.roomsService.update(+id, updateRoomDto, +req.user.id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string, @Request() req: any) {
-    return this.roomsService.remove(+id, req.user.id);
+    return this.roomsService.remove(+id, +req.user.id);
   }
 }

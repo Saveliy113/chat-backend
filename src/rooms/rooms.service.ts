@@ -66,43 +66,6 @@ export class RoomsService {
     });
   }
 
-  // async findOne(id: number) {
-  //   const room = await this.roomsRepository.findOne({
-  //     where: {
-  //       id,
-  //     },
-  //     relations: ['createdBy', 'messages', 'messages.author', 'participants'],
-  //     select: {
-  //       createdBy: {
-  //         id: true,
-  //         fullName: true,
-  //         email: true,
-  //       },
-  //     },
-  //     order: {
-  //       messages: {
-  //         createdAt: 'DESC',
-  //       },
-  //     },
-  //   });
-
-  //   return {
-  //     ...room,
-  //     createdBy: {
-  //       id: room.createdBy.id,
-  //       fullName: room.createdBy.fullName,
-  //       email: room.createdBy.email,
-  //     },
-  //     participants: room.participants.map((user) => {
-  //       return {
-  //         id: user.id,
-  //         fullName: user.fullName,
-  //         email: user.email,
-  //       };
-  //     }),
-  //   };
-  // }
-
   async findOne(id: number) {
     const qb = this.roomsRepository.createQueryBuilder('room');
     const room = await qb
@@ -123,24 +86,29 @@ export class RoomsService {
         'createdBy.fullName',
       ])
       .getOne();
-    console.log(room);
-
-    // qb.setParameters({
-    //   id: `%${id}%`,
-    // });
 
     return {
       ...room,
     };
   }
 
-  async update(id: number, dto: UpdateRoomDto) {
+  async update(id: number, dto: UpdateRoomDto, userId: number) {
     const room = await this.roomsRepository.findOne({
       where: {
         id,
       },
-      relations: ['participants'],
+      relations: ['createdBy'],
     });
+
+    if (!room) {
+      throw new NotFoundException('Комната не найдена');
+    }
+
+    if (room.createdBy.id !== userId) {
+      throw new ForbiddenException(
+        'У вас нет доступа к редактированию комнаты',
+      );
+    }
 
     return this.roomsRepository.update(id, {
       title: dto.title,
@@ -148,7 +116,7 @@ export class RoomsService {
     });
   }
 
-  async addMember(dto: AddMemberDto) {
+  async addMember(dto: AddMemberDto, userId: number) {
     const member = await this.usersRepository.findOne({
       where: {
         id: dto.memberId,
@@ -159,8 +127,16 @@ export class RoomsService {
       where: {
         id: dto.roomId,
       },
-      relations: ['participants'],
+      relations: ['participants', 'createdBy'],
     });
+
+    if (!room) {
+      throw new NotFoundException('Комната не найдена');
+    }
+
+    if (room.createdBy.id !== userId) {
+      throw new ForbiddenException('У вас нет доступа к добавлению участников');
+    }
 
     return this.roomsRepository.save({
       ...room,
